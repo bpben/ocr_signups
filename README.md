@@ -21,7 +21,11 @@ This repo uses local, open-source vision LLMs (via [Ollama](https://ollama.com))
    pip install -r requirements.txt
    ```
 
-   `pdf2image` requires Poppler. On macOS: `brew install poppler`
+   If you are using PDF inputs, you will need to install Poppler to use
+   `pdf2image`:
+   - macOS: `brew install poppler`
+   - Linux: `sudo apt install poppler-utils` (Debian/Ubuntu) or `sudo dnf install poppler-utils` (Fedora)
+   - Windows: install [Poppler for Windows](https://github.com/oschwartz10612/poppler-windows/releases) and add its `bin` folder to `PATH`
 
 4. **Start Ollama** before running extraction (the Ollama app or `ollama serve`).
 
