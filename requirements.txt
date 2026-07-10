@@ -1,0 +1,5 @@
+ollama
+pandas
+pdf2image
+geopy
+pyyaml

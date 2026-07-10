@@ -1,0 +1,11 @@
+model: qwen2.5vl:7b
+prompt: address
+prompts_file: prompts.yaml
+output_dir: output
+geocode:
+  enabled: true
+  address_field: Address
+  regions:
+    - Somerville, MA
+    - Cambridge, MA
+  user_agent: my-address-corrector-app

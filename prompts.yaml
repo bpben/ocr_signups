@@ -1,0 +1,25 @@
+address: |
+  This is a scan of a sign-up sheet. Extract the names and the addresses. Account for common mispellings and variations in names. Structure as a JSON object of the form:
+
+  [{"Name": "John Doe", "Address": "123 Apple Street"},
+  {"Name": "Jane Doe", "Address": "123 Pear Street"}]
+
+  Do not fabricate any data. Do not include code blocks or markdown formatting. Respond only with JSON, provide no additional information.
+
+contact_form: |
+  Extract all information from this scan of a community event sign-in sheet. Structure as a JSON object of the form:
+
+  {"Name": "John Doe", "Email": "john@aol.com", "Cambridge Voter": "x", "Volunteer": "x"}
+
+  Include all fields. Leave a field as an empty string if the field is not populated.
+
+  Return JSON only below, nothing else:
+
+contact_freeform: |
+  Extract all information from this scan of a community event sign-in sheet. Structure as a JSON object of the form:
+
+  {"Name": "John Doe", "Email": "john@aol.com"}
+
+  Include all fields. Leave a field as an empty string if the field is not populated.
+
+  Return JSON only below, nothing else:
