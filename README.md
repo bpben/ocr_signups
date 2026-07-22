@@ -25,7 +25,7 @@ This repo uses local, open-source vision LLMs (via [Ollama](https://ollama.com))
    `pdf2image`:
    - macOS: `brew install poppler`
    - Linux: `sudo apt install poppler-utils` (Debian/Ubuntu) or `sudo dnf install poppler-utils` (Fedora)
-   - Windows: install [Poppler for Windows](https://github.com/oschwartz10612/poppler-windows/releases) and add its `bin` folder to `PATH`
+   - Windows: install [Poppler for Windows](https://github.com/oschwartz10612/poppler-windows/releases) and add its `bin` folder to `PATH`g
 
 4. **Start Ollama** before running extraction (the Ollama app or `ollama serve`).
 
@@ -41,10 +41,13 @@ Edit `config.yaml`:
 
 ```yaml
 model: qwen2.5vl:7b
+num_ctx: 4096            # Ollama context window; increase (e.g. 8192) for large/high-res photos
 prompt: address          # key into prompts.yaml
 prompts_file: prompts.yaml
 output_dir: output
 ```
+
+If you see an `exceed_context_size_error` from Ollama, raise `num_ctx` in `config.yaml`.
 
 Named prompts in `prompts.yaml`:
 

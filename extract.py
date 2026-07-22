@@ -176,13 +176,15 @@ def output_paths(image_fp: Path, input_root: Path, output_dir: Path) -> tuple[Pa
     return base.with_suffix(".txt"), base.with_suffix(".json")
 
 
-def extract_image(image_fp: Path, model: str, prompt: str) -> str:
+def extract_image(image_fp: Path, model: str, prompt: str, num_ctx: int) -> str:
     """Run the vision model on a single image.
 
     Args:
         image_fp: Path to the image file.
         model: Ollama model name (for example, ``qwen2.5vl:7b``).
         prompt: Extraction prompt sent to the model.
+        num_ctx: Ollama context window size (``num_ctx``). Increase for large
+            or high-resolution photos that exceed the default context.
 
     Returns:
         Raw text content from the model response.
@@ -194,6 +196,7 @@ def extract_image(image_fp: Path, model: str, prompt: str) -> str:
             "content": prompt,
             "images": [str(image_fp)],
         }],
+        options={"num_ctx": num_ctx},
         keep_alive=-1,
     )
     return response["message"]["content"]
@@ -238,11 +241,14 @@ def process_image(
     output_dir: Path,
     model: str,
     prompt: str,
+    num_ctx: int,
 ) -> tuple[str, list[dict]] | None:
     """Extract contact info from one image and write per-image outputs.
 
-    Skips images that already have a parsed JSON output file. On model errors,
-    waits 60 seconds before returning without retrying the same image in this call.
+    Skips images that already have a parsed JSON output file. On context-size
+    errors, logs a hint to raise ``num_ctx`` and returns immediately. On other
+    model errors, waits 60 seconds before returning without retrying the same
+    image in this call.
 
     Args:
         image_fp: Path to the image file.
@@ -250,6 +256,7 @@ def process_image(
         output_dir: Directory for ``.txt`` and ``.json`` outputs.
         model: Ollama model name.
         prompt: Extraction prompt sent to the model.
+        num_ctx: Ollama context window size passed to ``extract_image``.
 
     Returns:
         A tuple of ``(source_path, records)`` on success, where ``source_path`` is
@@ -264,8 +271,17 @@ def process_image(
 
     logger.info("%s", image_fp)
     try:
-        response = extract_image(image_fp, model, prompt)
+        response = extract_image(image_fp, model, prompt, num_ctx)
     except Exception as e:
+        msg = str(e)
+        if "exceed_context_size_error" in msg or "exceeds the available context size" in msg:
+            logger.error(
+                "Context too small for %s (num_ctx=%d). "
+                "Increase num_ctx in config.yaml (e.g. 8192) and re-run.",
+                image_fp,
+                num_ctx,
+            )
+            return None
         time.sleep(60)
         logger.error("Error processing %s: %s", image_fp, e, exc_info=True)
         return None
@@ -434,11 +450,12 @@ def main() -> None:
     input_path = args.input.resolve()
     input_root = input_path if input_path.is_dir() else input_path.parent
     model = config["model"]
+    num_ctx = config.get("num_ctx", 4096)
 
     result_dict: dict[str, list[dict]] = {}
     for file_path in gather_inputs(input_path):
         for image_fp in resolve_images(file_path.resolve(), output_dir):
-            result = process_image(image_fp, input_root, output_dir, model, prompt)
+            result = process_image(image_fp, input_root, output_dir, model, prompt, num_ctx)
             if result:
                 result_dict[result[0]] = result[1]
 

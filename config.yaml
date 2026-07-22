@@ -1,4 +1,5 @@
 model: qwen2.5vl:7b
+num_ctx: 8500
 prompt: address
 prompts_file: prompts.yaml
 output_dir: output
